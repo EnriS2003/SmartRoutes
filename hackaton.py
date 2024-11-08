@@ -1,6 +1,7 @@
 import pandas as pd
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from geopy.distance import geodesic
+from geopy.geocoders import Nominatim
 
 # Caricamento dei file CSV con percorso assoluto o relativo corretto
 prenotazioni = pd.read_csv('prenotazioni.csv')  # Assicurati che il percorso sia corretto
@@ -19,8 +20,11 @@ posizioni_ospedali = {
     'BRESSANONE': (46.7176, 11.6565),
     'MERANO': (46.6713, 11.1594),
     'BRUNICO': (46.7962, 11.9365),
-    'VIPITENO': (46.8957, 11.4339)
+    'VIPITENO': (46.8957, 11.4339),
+    'SILANDRO': (46.6267, 10.7725),
+    'SAN CANDIDO': (46.7332, 12.2843)
 }
+
 
 # Capacità dei veicoli
 capacità_veicoli = {
@@ -30,15 +34,21 @@ capacità_veicoli = {
     'PKW': {'barella': 0, 'sedia_rotelle': 0, 'abili': 4}
 }
 
-# Funzione per determinare l'ospedale più vicino a una città di partenza
+# Funzione per determinare l'ospedale più vicino a una città di partenza usando OpenStreetMap
 def trova_ospedale_partenza(città_partenza):
-    posizione_città = posizioni_ospedali.get(città_partenza, None)
-    if not posizione_città:
-        raise ValueError(f"Posizione per la città '{città_partenza}' non trovata.")
+    # Utilizza il geocoder Nominatim di OpenStreetMap
+    geolocator = Nominatim(user_agent="ospedale_locator")
+    location = geolocator.geocode(città_partenza)
+    
+    if not location:
+        raise ValueError(f"Posizione per la città '{città_partenza}' non trovata tramite OpenStreetMap.")
 
+    posizione_città = (location.latitude, location.longitude)
+    
     ospedale_piu_vicino = None
     distanza_minima = float('inf')
 
+    # Itera sulle posizioni degli ospedali per trovare quello più vicino
     for ospedale, posizione in posizioni_ospedali.items():
         distanza = geodesic(posizione_città, posizione).kilometers
         if distanza < distanza_minima:
