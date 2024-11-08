@@ -1,2 +1,0 @@
-ospedale_partenza,destinazione,fascia_oraria,percorso,id_pazienti,num_pazienti
-BOLZANO,BOLZANO,1900-01-01 10:00:00,"['BOLZANO', 'BOLZANO', 'BRUNICO', 'BOLZANO']","[1, 2, 3]",3

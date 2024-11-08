@@ -1,0 +1,3 @@
+data_appuntamento,orario_appuntamento,città_appuntamento,tipo_paziente,città_partenza,ID_paziente,fascia_oraria
+2024-11-09,1900-01-01 10:00:00,BOLZANO,barella,BRUNICO,2,1900-01-01 10:00:00
+2024-11-09,1900-01-01 10:00:00,BOLZANO,barella,BRUNICO,3,1900-01-01 10:00:00
