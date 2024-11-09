@@ -1,7 +1,8 @@
 # 🚑 South Tyrol Healthcare Transport Optimization System
 
 ## 📋 Description
-This project implements an optimization system for healthcare transport in South Tyrol. It displays and calculates optimal routes for patient transport between hospitals and healthcare facilities, taking into account various parameters such as distance, time, and available resources.
+This project implements an optimization system for healthcare transport in South Tyrol. It displays and calculates optimal routes for patient transport between hospitals and healthcare facilities, taking into account various parameters such as distanceS, time, and specific needs of each patient.
+The aim is to optimize the routes of the vehicles to save up time, increase the patient comfort and to develop a eco-friendly optimization algorithm.
 
 ## 🚀 Features
 - Interactive route visualization on map
@@ -30,12 +31,22 @@ git clone https://github.com/EnriS2003/SmartRoutes.git
 pip install -r requirements.txt
 ```
 
-3. Start the application
+3. Start the application -> BACKEND
+```bash
+python hackathon.py
+```
+
+4. Start the application -> FRONTEND
 ```bash
 python app.py
 ```
 
-4. Open your browser and go to:
+5. Access to the operator GUI
+```bash
+python sim_op_tel.py
+```
+
+6. Open your browser and go to:
 ```bash
 http://localhost:5000
 ```
@@ -45,11 +56,12 @@ http://localhost:5000
 ├── app.py              # Main Flask server
 ├── hackathon.py        # Optimization logic
 ├── static/
-│   ├── css/           # Stylesheets
+│   ├── css/           # Stylesheets CSS
 │   └── js/            # JavaScript files
 ├── templates/          # HTML templates
 └── resources/         # Data and resources
     └── trasporti_ottimizzati.csv
+    └── prenotazioni.csv
 ```
 
 ## 🔧 Configuration
@@ -67,7 +79,7 @@ app.run(host='0.0.0.0', port=YOUR_PORT, debug=True)
 
 ## 📝 Notes
 - In development mode, `debug=True` is active
-- For production, use a WSGI server like Gunicorn
+- For production, use a WSGI server like Gunicorn (also pay attention to use an adequate number of workers when running on your server)
 - Ensure the CSV file is present in the resources folder
 
 
@@ -81,28 +93,8 @@ app.run(host='0.0.0.0', port=YOUR_PORT, debug=True)
 - Leaflet for map visualization
 - The Open Source community
 
-## 🔍 API Documentation
-### Endpoints
-- `GET /`: Main page with map visualization
-- `GET /get_routes`: Returns route data in JSON format
-- `POST /update_route`: Updates route information
-
-### Data Format
-```json
-{
-    "routes": [
-        {
-            "start": "Hospital A",
-            "end": "Hospital B",
-            "coordinates": [...],
-            "distance": "10.5 km"
-        }
-    ]
-}
-```
-
 ## 🔄 Updates
-- Latest version: 1.0.0
+- Latest version: MVP
 - Last updated: 09/11/2024
 
 ## 💻 Development

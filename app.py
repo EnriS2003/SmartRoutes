@@ -42,9 +42,9 @@ def display_output():
         'orario_partenza': 'Orario di Partenza'
     }, inplace=True)
 
-    
+
     table_html = output_df.to_html(classes='table table-striped', index=False)
     return render_template('map.jinja2', table_html=table_html, routes_data=routes_data)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
