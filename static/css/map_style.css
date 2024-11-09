@@ -133,3 +133,20 @@ button {
 button:hover {
     background-color: #4a69bd;
 }
+
+#map {
+    height: 600px;
+    margin-top: 20px;
+}
+
+/* Center the table header elements */
+.table thead th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Center the content of all table cells */
+.table td {
+    text-align: center;
+    vertical-align: middle;
+}

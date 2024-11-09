@@ -8,12 +8,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/map_style.css') }}">
 
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <style>
-        #map {
-            height: 600px;
-            margin-top: 20px;
-        }
-    </style>
 </head>
 
 <body>
@@ -27,33 +21,33 @@
     </div>
 
    <script>
-            // Inizializza la mappa
-            var map = L.map('map').setView([46.4983, 11.3548], 10);  // Posizione di default centrata su Bolzano
+            // Initialize the map
+            var map = L.map('map').setView([46.4983, 11.3548], 10);  // Initial position centered on Bolzano
 
-            // Aggiungi un layer di base da OpenStreetMap
+            // Add OpenStreetMap base layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
+                maxZoom: 10,
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Dati dei percorsi passati dal backend
+            // Route data received from backend
             var routes = {{ routes_data|tojson|safe }};
 
-            // Colori predefiniti per i percorsi
+            // Predefined colors for routes
             var colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightblue', 'lightgreen', 'gray'];
 
-            // Funzione per aggiungere i percorsi alla mappa
+            // Function to add routes to the map
             routes.forEach(function(route, index) {
                 var latlngs = route.coordinates.map(function(coord) {
-                    return [coord[0], coord[1]];  // Converti le coordinate in formato LatLng
+                    return [coord[0], coord[1]];  // Convert coordinates to LatLng format
                 });
 
-                // Aggiungi la polyline per ogni percorso
+                // Add polyline for each route
                 L.polyline(latlngs, {
                     color: colors[index % colors.length],
                     weight: 5,
                     opacity: 0.7
-                }).addTo(map).bindPopup('Percorso ' + (index + 1));
+                }).addTo(map).bindPopup('Route ' + (index + 1));
             });
    </script>
 </body>
