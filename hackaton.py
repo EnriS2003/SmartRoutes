@@ -97,6 +97,43 @@ def trova_percorso_ottimale(matrice_distanza, num_pazienti):
         return None
 
 
+
+
+
+# Funzione per ordinare le città in base alla distanza dall'ospedale di partenza
+def ordina_città_per_distanza(ospedale_partenza, percorso, posizioni_ospedali):
+    # Ottieni le coordinate dell'ospedale di partenza
+    coord_ospedale_partenza = posizioni_ospedali.get(ospedale_partenza)
+    
+    if not coord_ospedale_partenza:
+        raise ValueError(f"Le coordinate per l'ospedale di partenza '{ospedale_partenza}' non sono disponibili.")
+    
+    # Calcola le distanze e ordina le città
+    percorso_ordinato = sorted(
+        percorso,
+        key=lambda città: geodesic(coord_ospedale_partenza, posizioni_ospedali.get(città, (0, 0))).kilometers,
+        reverse=True  # Ordinamento dalla più lontana alla più vicina
+    )
+    return percorso_ordinato
+
+# Applicazione delle modifiche al DataFrame
+def modifica_percorso_df(df, posizioni_ospedali):
+    df['percorso'] = df.apply(lambda row: [città for città in row['percorso'].split(' -> ')
+                                           if città not in [row['ospedale_partenza'], row['destinazione']]], axis=1)
+    df['percorso_ordinato'] = df.apply(lambda row: ordina_città_per_distanza(
+        row['ospedale_partenza'], row['percorso'], posizioni_ospedali), axis=1)
+    # Trasforma la lista ordinata in una stringa con separatori per CSV
+    df['percorso_ordinato'] = df['percorso_ordinato'].apply(lambda x: ' -> '.join(x))
+    return df
+
+
+
+
+
+
+
+
+
 # Funzione aggiornata per assegnare veicoli ai gruppi di pazienti
 def assegna_veicolo(gruppo):
     num_barelle = sum(gruppo['tipo_paziente'] == 'barella')
@@ -188,5 +225,13 @@ for (destinazione, fascia_oraria), gruppo in gruppi:
             })
 # Salvataggio su CSV
 output_df = pd.DataFrame(output_finale)
+
+output_df['percorso'] = output_df.apply(
+    lambda row: list({p for p in row['percorso'] if p not in [row['ospedale_partenza'], row['destinazione']]}),
+    axis=1
+)
+
+# Scrittura del DataFrame modificato su file CSV
 output_df.to_csv('trasporti_ottimizzati.csv', index=False)
+
 
