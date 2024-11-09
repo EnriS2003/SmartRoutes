@@ -5,6 +5,7 @@ from geopy.geocoders import Nominatim
 import osmnx as ox
 import networkx as nx
 from datetime import datetime, timedelta
+import requests
 
 
 ox.settings.log_console=True
@@ -223,12 +224,6 @@ output_df['percorso'] = output_df.apply(
 )
 
 
-
-
-
-
-
-
 def ordina_per_distanza(row):
     ospedale_partenza = row['ospedale_partenza']
     percorso = row['percorso']
@@ -258,13 +253,106 @@ def ordina_per_distanza(row):
         return percorso
 
 
-
-
-
-
-
 # Applica la funzione al DataFrame
 output_df['percorso'] = output_df.apply(ordina_per_distanza, axis=1)
+
+
+
+
+
+
+
+# Funzione per calcolare il tempo di viaggio tra due coordinate usando OSRM
+def calcola_tempo_viaggio_osrm(origine, destinazione):
+    osrm_url = f"http://router.project-osrm.org/route/v1/driving/{origine[1]},{origine[0]};{destinazione[1]},{destinazione[0]}"
+    params = {
+        'overview': 'full',
+        'geometries': 'geojson'
+    }
+    response = requests.get(osrm_url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        if data['routes']:
+            durata_viaggio = data['routes'][0]['duration']  # Durata in secondi
+            return durata_viaggio
+        else:
+            print("Nessun percorso trovato.")
+            return None
+    else:
+        print(f"Errore nel calcolo del percorso: {response.status_code}")
+        return None
+
+# Funzione principale per calcolare l'orario di partenza
+def calcola_orario_partenza(orario_arrivo, punto_partenza, percorso, destinazione):
+    # Converti i punti in coordinate
+    partenza_coords = get_coordinates(punto_partenza)
+    destinazione_coords = get_coordinates(destinazione)
+    percorso_coords = [get_coordinates(città) for città in percorso]
+
+    if None in [partenza_coords, destinazione_coords] or any(coord is None for coord in percorso_coords):
+        print("Errore: coordinate mancanti per alcune città.")
+        return None
+
+    # Calcola il tempo totale di viaggio sommando i tempi tra i punti
+    tempo_totale_trascorso = 0
+    punti_intermedi = [partenza_coords] + percorso_coords + [destinazione_coords]
+
+    for i in range(len(punti_intermedi) - 1):
+        durata_segmento = calcola_tempo_viaggio_osrm(punti_intermedi[i], punti_intermedi[i + 1])
+        if durata_segmento:
+            tempo_totale_trascorso += durata_segmento
+        else:
+            print(f"Errore nel calcolo del tempo di viaggio tra {punti_intermedi[i]} e {punti_intermedi[i + 1]}")
+            return None
+
+    # Calcola l'orario di partenza
+    tempo_totale_trascorso_minuti = timedelta(seconds=tempo_totale_trascorso)
+    orario_partenza = orario_arrivo - tempo_totale_trascorso_minuti
+
+    return orario_partenza, tempo_totale_trascorso_minuti
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+output_df['fascia_oraria'] = pd.to_datetime(output_df['fascia_oraria'], format='%Y-%m-%d %H:%M:%S')
+
+# Funzione per calcolare l'orario di partenza
+output_df['orario_partenza'] = output_df.apply(
+    lambda row: calcola_orario_partenza(
+        row['fascia_oraria'],
+        row['ospedale_partenza'],
+        row['percorso'],
+        row['destinazione']
+    )[0] if calcola_orario_partenza(
+        row['fascia_oraria'],
+        row['ospedale_partenza'],
+        row['percorso'],
+        row['destinazione']
+    ) else None,
+    axis=1
+)
+
+# Visualizza il DataFrame aggiornato
+print(output_df)
+
+
+
+
+
+
 
 # Scrittura del DataFrame modificato su file CSV
 output_df.to_csv('resources/trasporti_ottimizzati.csv', index=False)

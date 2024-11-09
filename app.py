@@ -31,6 +31,18 @@ for _, row in output_df.iterrows():
 
 @app.route('/')
 def display_output():
+    output_df.rename(columns={
+        'ospedale_partenza': 'Punto di Partenza',
+        'destinazione': 'Destinazione',
+        'fascia_oraria': 'Fascia Oraria',
+        'percorso': 'Percorso',
+        'id_pazienti': 'ID Paziente/i',
+        'num_pazienti': 'Numero di Pazienti',
+        'tipo_veicolo': 'Tipo di Veicolo',
+        'orario_partenza': 'Orario di Partenza'
+    }, inplace=True)
+
+    
     table_html = output_df.to_html(classes='table table-striped', index=False)
     return render_template('map.jinja2', table_html=table_html, routes_data=routes_data)
 
