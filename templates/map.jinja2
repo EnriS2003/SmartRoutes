@@ -4,12 +4,54 @@
     <meta charset="UTF-8">
     <title>Output DataFrame</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 600px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Output DataFrame</h1>
         <!-- Render the DataFrame as an HTML table -->
         {{ table_html|safe }}
+
+        <h2>Map of Routes</h2>
+        <div id="map"></div>
     </div>
+
+    <script>
+        // Inizializza la mappa
+        var map = L.map('map').setView([46.4983, 11.3548], 10);  // Posizione di default centrata su Bolzano
+
+        // Aggiungi un layer di base da OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Dati dei percorsi passati dal backend
+        var routes = {{ routes_data|tojson }};
+
+        // Colori predefiniti per i percorsi
+        var colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightblue', 'lightgreen', 'gray'];
+
+        // Funzione per aggiungere i percorsi alla mappa
+        routes.forEach(function(route, index) {
+            var latlngs = route.coordinates.map(function(coord) {
+                return [coord[0], coord[1]];  // Converti le coordinate in formato LatLng
+            });
+
+            // Aggiungi la polyline per ogni percorso
+            L.polyline(latlngs, {
+                color: colors[index % colors.length],
+                weight: 5,
+                opacity: 0.7
+            }).addTo(map).bindPopup('Percorso ' + (index + 1));
+        });
+    </script>
 </body>
 </html>
