@@ -101,9 +101,9 @@ class GestorePrenotazioni:
         """Salva la prenotazione nel CSV"""
         try:
             df = pd.DataFrame([dati])
-            file_exists = os.path.isfile('prenotazioni_trasporti.csv')
+            file_exists = os.path.isfile('resources/prenotazioni.csv')
             
-            df.to_csv('prenotazioni_trasporti.csv', 
+            df.to_csv('resources/prenotazioni.csv', 
                      mode='a', 
                      header=not file_exists, 
                      index=False)
