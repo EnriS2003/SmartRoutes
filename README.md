@@ -102,3 +102,8 @@ app.run(host='0.0.0.0', port=YOUR_PORT, debug=True)
 - Uses Leaflet.js for map rendering
 - Real-time route optimization
 ```
+
+## Note
+- WARNING: the login feature is to be adjusted by linking a database
+- WARNING: the redis instance is not connected so far
+```

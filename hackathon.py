@@ -1,13 +1,8 @@
 import pandas as pd
-from ortools.constraint_solver import pywrapcp, routing_enums_pb2
-from geopy.distance import geodesic
-from geopy.geocoders import Nominatim
 import osmnx as ox
-import networkx as nx
-from datetime import datetime, timedelta
-import requests
 
 from hackathon_helper import *
+
 
 ox.settings.log_console=True
 prenotazioni = pd.read_csv('resources/prenotazioni.csv')
