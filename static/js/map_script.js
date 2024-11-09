@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Output DataFrame</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/map_style.css') }}">
-
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <style>
-        #map {
-            height: 600px;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h1>Output DataFrame</h1>
-        <!-- Render the DataFrame as an HTML table -->
-        {{ table_html|safe }}
-
-        <h2>Map of Routes</h2>
-        <div id="map"></div>
-    </div>
-
-   <script>
-    // Inizializza la mappa
+// Inizializza la mappa
 var map = L.map('map').setView([46.4983, 11.3548], 10);  // Posizione di default centrata su Bolzano
 
 // Aggiungi un layer di base da OpenStreetMap
@@ -37,7 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Dati dei percorsi passati dal backend
-var routes = {{ routes_data|tojson|safe }};
+var routes = {{ routes_data|tojson }};
 
 // Colori predefiniti per i percorsi
 var colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightblue', 'lightgreen', 'gray'];
@@ -55,6 +26,3 @@ routes.forEach(function(route, index) {
         opacity: 0.7
     }).addTo(map).bindPopup('Percorso ' + (index + 1));
 });
-   </script>
-</body>
-</html>
