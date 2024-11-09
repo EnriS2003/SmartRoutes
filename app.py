@@ -1,8 +1,51 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session, request, redirect, url_for, flash
 import pandas as pd
 from geopy.geocoders import Nominatim
+from datetime import timedelta
+import requests
+
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'hfuendidh3qq89rh49fnvsfrugb4urw9qiefbuwe' #NOTA: usa una chiave sicura 
+#app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config['SESSION_USE_SIGNER'] = True
+
+#Se si lavora con più worker es:gunicorn aiuta a sincronizzarli per non perdere i dati sessione
+#app.config['SESSION_REDIS'] = redis.StrictRedis(host='localhost', port=6379, db=0) 
+
+
+# Crea una sessione HTTP
+session = requests.Session()
+
+# ATTENZIONE: SOSTITUIRE L'ARCHIVIAZIONE DEI DATI UTENTE IN UN DB SICURO IN AMBIENTE PROD (es: istnaza RDS con crittografia)
+credentials = {
+    "user1": "password123", # ATTENZIONE: utiizzare funzioni di hash per proteggere le password
+    "admin": "a"
+}
+
+
+# Route per la pagina di login
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if not username or not password:
+            flash('Inserisci sia il nome utente che la password.', 'warning')
+        else:
+            # Verifica delle credenziali
+            if username in credentials and credentials[username] == password:
+                flash('Login effettuato con successo!', 'success')
+                return redirect(url_for('map'))
+            else:
+                flash('Credenziali non valide. Riprova.', 'danger')
+    
+    return render_template('login.html')
+
+
 
 # Carica il DataFrame con i dati dei percorsi
 output_df = pd.read_csv('resources/trasporti_ottimizzati.csv')
@@ -29,8 +72,8 @@ for _, row in output_df.iterrows():
     if coordinates:
         routes_data.append({'coordinates': coordinates})
 
-@app.route('/')
-def display_output():
+@app.route('/map')
+def map():
     output_df.rename(columns={
         'ospedale_partenza': 'Punto di Partenza',
         'destinazione': 'Destinazione',
