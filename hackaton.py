@@ -5,8 +5,6 @@ from geopy.geocoders import Nominatim
 
 # Caricamento dei file CSV con percorso assoluto o relativo corretto
 prenotazioni = pd.read_csv('prenotazioni.csv')  # Assicurati che il percorso sia corretto
-veicoli = pd.read_csv('veicoli.csv')
-disponibilita_ospedali = pd.read_csv('disponibilita_ospedali.csv')
 
 # Aggiungi un ID univoco ai pazienti
 prenotazioni['ID_paziente'] = range(1, len(prenotazioni) + 1)
@@ -95,42 +93,6 @@ def trova_percorso_ottimale(matrice_distanza, num_pazienti):
         return percorso
     else:
         return None
-
-
-
-
-
-# Funzione per ordinare le città in base alla distanza dall'ospedale di partenza
-def ordina_città_per_distanza(ospedale_partenza, percorso, posizioni_ospedali):
-    # Ottieni le coordinate dell'ospedale di partenza
-    coord_ospedale_partenza = posizioni_ospedali.get(ospedale_partenza)
-    
-    if not coord_ospedale_partenza:
-        raise ValueError(f"Le coordinate per l'ospedale di partenza '{ospedale_partenza}' non sono disponibili.")
-    
-    # Calcola le distanze e ordina le città
-    percorso_ordinato = sorted(
-        percorso,
-        key=lambda città: geodesic(coord_ospedale_partenza, posizioni_ospedali.get(città, (0, 0))).kilometers,
-        reverse=True  # Ordinamento dalla più lontana alla più vicina
-    )
-    return percorso_ordinato
-
-# Applicazione delle modifiche al DataFrame
-def modifica_percorso_df(df, posizioni_ospedali):
-    df['percorso'] = df.apply(lambda row: [città for città in row['percorso'].split(' -> ')
-                                           if città not in [row['ospedale_partenza'], row['destinazione']]], axis=1)
-    df['percorso_ordinato'] = df.apply(lambda row: ordina_città_per_distanza(
-        row['ospedale_partenza'], row['percorso'], posizioni_ospedali), axis=1)
-    # Trasforma la lista ordinata in una stringa con separatori per CSV
-    df['percorso_ordinato'] = df['percorso_ordinato'].apply(lambda x: ' -> '.join(x))
-    return df
-
-
-
-
-
-
 
 
 
@@ -223,6 +185,34 @@ for (destinazione, fascia_oraria), gruppo in gruppi:
                 'num_pazienti': len(pazienti_selezionati),
                 'tipo_veicolo': veicolo_selezionato
             })
+
+geolocator = Nominatim(user_agent="geo_app")
+
+# Funzione per ottenere le coordinate di una città
+def get_coordinates(city):
+    location = geolocator.geocode(city)
+    if location:
+        return (location.latitude, location.longitude)
+    else:
+        return None
+
+# Funzione per calcolare le distanze e ordinare le città
+def order_cities_by_distance(row):
+    start_coords = get_coordinates(row['ospedale_partenza'])
+    if start_coords:
+        city_distances = []
+        for city in row['percorso']:
+            city_coords = get_coordinates(city)
+            if city_coords:
+                distance = geodesic(start_coords, city_coords).kilometers
+                city_distances.append((city, distance))
+        # Ordina le città dalla più lontana alla più vicina
+        city_distances.sort(key=lambda x: x[1], reverse=True)
+        return [city[0] for city in city_distances]
+    else:
+        return row['percorso']  # Restituisce il percorso originale se l'ospedale non è geolocalizzabile
+
+
 # Salvataggio su CSV
 output_df = pd.DataFrame(output_finale)
 
@@ -230,6 +220,9 @@ output_df['percorso'] = output_df.apply(
     lambda row: list({p for p in row['percorso'] if p not in [row['ospedale_partenza'], row['destinazione']]}),
     axis=1
 )
+
+output_df['percorso'] = output_df.apply(order_cities_by_distance, axis=1)
+
 
 # Scrittura del DataFrame modificato su file CSV
 output_df.to_csv('trasporti_ottimizzati.csv', index=False)
