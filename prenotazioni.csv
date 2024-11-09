@@ -1,6 +1,6 @@
 data_appuntamento,orario_appuntamento,città_appuntamento,tipo_paziente,città_partenza,ID_paziente,fascia_oraria
 2024-11-09,1900-01-01 10:00:00,BOLZANO,barella,TERLANO,1,1900-01-01 10:00:00
-2024-11-09,1900-01-01 10:00:00,BOLZANO,sedia a rotelle,TERLANO,2,1900-01-01 10:00:00
+2024-11-09,1900-01-01 10:00:00,BOLZANO,sedia a rotelle,BRESSANONE,2,1900-01-01 10:00:00
 2024-11-09,1900-01-01 10:00:00,BOLZANO,sedia a rotelle,VIPITENO,3,1900-01-01 10:00:00
 2024-11-09,1900-01-01 10:00:00,BOLZANO,sedia a rotelle,SINIGO,4,1900-01-01 10:00:00
 2024-11-09,1900-01-01 11:00:00,BOLZANO,barella,SINIGO,5,1900-01-01 11:00:00
