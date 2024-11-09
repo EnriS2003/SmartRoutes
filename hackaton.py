@@ -2,9 +2,13 @@ import pandas as pd
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
+import osmnx as ox
+import networkx as nx
+from datetime import datetime, timedelta
 
 
-prenotazioni = pd.read_csv('prenotazioni.csv')
+ox.settings.log_console=True
+prenotazioni = pd.read_csv('resources/prenotazioni.csv')
 geolocator = Nominatim(user_agent="geo_app")
 
 
@@ -263,5 +267,5 @@ def ordina_per_distanza(row):
 output_df['percorso'] = output_df.apply(ordina_per_distanza, axis=1)
 
 # Scrittura del DataFrame modificato su file CSV
-output_df.to_csv('trasporti_ottimizzati.csv', index=False)
+output_df.to_csv('resources/trasporti_ottimizzati.csv', index=False)
 
